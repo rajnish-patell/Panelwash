@@ -1,14 +1,9 @@
 "use strict";
 
 import { NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
 
-// Global Prisma instance helper to prevent multiple instances in Next.js development
-const globalForPrisma = globalThis as unknown as { prisma: PrismaClient };
-const prisma = globalForPrisma.prisma || new PrismaClient();
-if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
-
-// In-Memory mock data fallback if Prisma/SQLite is not migrated yet
+// In-Memory mock data storage for Vercel deployment
+// In production, replace with a real database (Vercel Postgres, Neon, PlanetScale, etc.)
 let mockBookings: any[] = [
   {
     id: "mock-1",
@@ -82,7 +77,8 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
-    const bookingPayload = {
+    const newBooking = {
+      id: `booking-${Date.now()}`,
       name,
       mobileNumber,
       email,
@@ -91,31 +87,14 @@ export async function POST(request: Request) {
       numberOfPanels: Number(numberOfPanels),
       propertyType,
       serviceType,
-      preferredDate: new Date(preferredDate),
+      preferredDate: new Date(preferredDate).toISOString(),
       notes: notes || "",
       status: "PENDING",
       paymentStatus: "UNPAID",
+      createdAt: new Date().toISOString(),
     };
 
-    let newBooking;
-    let usedMockFallback = false;
-
-    try {
-      // Attempt Prisma create
-      newBooking = await prisma.booking.create({
-        data: bookingPayload,
-      });
-    } catch (dbError) {
-      console.warn("Prisma write failed (SQLite dev.db might not be initialized). Falling back to mock memory storage:", dbError);
-      usedMockFallback = true;
-      newBooking = {
-        id: `mock-${Date.now()}`,
-        ...bookingPayload,
-        preferredDate: new Date(preferredDate).toISOString(),
-        createdAt: new Date().toISOString(),
-      };
-      mockBookings.unshift(newBooking);
-    }
+    mockBookings.unshift(newBooking);
 
     // SIMULATED SYSTEM INTEGRATIONS
     console.log("---- PANELWASH INTEGRATION LOGS ----");
@@ -135,7 +114,7 @@ export async function POST(request: Request) {
     // 4. Email Notification (Admin Lead System)
     console.log(`[EMAIL - Resend] Sent to dispatch@panelwash.in:
       Subject: [NEW LEAD] Solar Panel Cleaning Request - ${name} (${city})
-      Details: ${JSON.stringify(bookingPayload, null, 2)}`);
+      Details: ${JSON.stringify(newBooking, null, 2)}`);
       
     console.log("------------------------------------");
 
@@ -143,7 +122,6 @@ export async function POST(request: Request) {
       success: true,
       booking: newBooking,
       razorpayOrderId: mockRazorpayOrderId,
-      usedMockFallback
     }, { status: 201 });
 
   } catch (error: any) {
@@ -155,27 +133,9 @@ export async function POST(request: Request) {
 // GET /api/bookings
 export async function GET() {
   try {
-    let bookings;
-    let usedMockFallback = false;
-
-    try {
-      bookings = await prisma.booking.findMany({
-        orderBy: { createdAt: "desc" },
-      });
-      // If DB is empty, mix in some mock bookings so the dashboard is not empty on initial run
-      if (bookings.length === 0) {
-        bookings = mockBookings;
-      }
-    } catch (dbError) {
-      console.warn("Prisma fetch failed, serving mock bookings:", dbError);
-      usedMockFallback = true;
-      bookings = mockBookings;
-    }
-
     return NextResponse.json({
       success: true,
-      bookings,
-      usedMockFallback
+      bookings: mockBookings,
     }, { status: 200 });
   } catch (error: any) {
     console.error("Fetch bookings error:", error);

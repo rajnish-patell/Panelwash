@@ -1,10 +1,6 @@
 "use strict";
 
 import { NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
-
-const globalForPrisma = globalThis as unknown as { prisma: PrismaClient };
-const prisma = globalForPrisma.prisma || new PrismaClient();
 
 // PATCH /api/bookings/[id]
 export async function PATCH(request: Request, context: { params: Promise<{ id: string }> }) {
@@ -17,25 +13,12 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
     if (status) updatePayload.status = status;
     if (paymentStatus) updatePayload.paymentStatus = paymentStatus;
 
-    let updatedBooking;
-
-    try {
-      // Prisma update
-      updatedBooking = await prisma.booking.update({
-        where: { id },
-        data: updatePayload,
-      });
-    } catch (dbError) {
-      console.warn(`Prisma update failed for ID ${id}. Returning mock success:`, dbError);
-      
-      // Return a simulated updated object back
-      updatedBooking = {
-        id,
-        status: status || "APPROVED",
-        paymentStatus: paymentStatus || "PAID",
-        updatedAt: new Date().toISOString()
-      };
-    }
+    // Return a simulated updated object
+    const updatedBooking = {
+      id,
+      ...updatePayload,
+      updatedAt: new Date().toISOString()
+    };
 
     console.log(`[SYSTEM LOG] Updated booking ${id} parameters:`, updatePayload);
 
