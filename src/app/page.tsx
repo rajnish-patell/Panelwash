@@ -701,7 +701,7 @@ export default function Home() {
                 <div>
                   <div className="text-solar-yellow text-lg mb-4">★★★★★</div>
                   <p className="text-sm text-gray-300 italic leading-relaxed">
-                    "{t.text}"
+                    &ldquo;{t.text}&rdquo;
                   </p>
                 </div>
                 <div className="flex items-center gap-3 mt-6">
@@ -795,7 +795,7 @@ export default function Home() {
         <div className="max-w-7xl mx-auto space-y-12">
           <motion.div variants={fadeInUp} className="text-center max-w-2xl mx-auto">
             <span className="text-xs font-bold text-solar-yellow uppercase tracking-widest">Schedule Slot</span>
-            <h2 className="text-3xl sm:text-4xl font-extrabold text-white mt-2">Let's Clean Your Panels</h2>
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-white mt-2">Let&apos;s Clean Your Panels</h2>
             <p className="text-sm text-gray-400 mt-2">
               Fill in your contact and installation details to request slots. Free quote and RO testing on-site!
             </p>
@@ -815,7 +815,7 @@ export default function Home() {
               PANEL<span className="text-solar-yellow">WASH</span>
             </span>
             <p className="text-xs text-gray-400 leading-relaxed">
-              Premium water-purified solar panel cleaning services. Maximizing India's rooftop solar energy efficiency.
+              Premium water-purified solar panel cleaning services. Maximizing India&apos;s rooftop solar energy efficiency.
             </p>
             <div className="text-xs text-gray-500">
               © {new Date().getFullYear()} PanelWash India. All Rights Reserved.

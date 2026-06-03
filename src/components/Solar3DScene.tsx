@@ -261,7 +261,7 @@ export default function Solar3DScene() {
             )}
           </h4>
           <p className="text-[11px] sm:text-xs text-gray-400 mt-1 max-w-sm">
-            Drag to rotate solar panel. Click "Start Cleaning Wash" to sweep away dust & pollutants.
+            Drag to rotate solar panel. Click &ldquo;Start Cleaning Wash&rdquo; to sweep away dust & pollutants.
           </p>
         </div>
 
