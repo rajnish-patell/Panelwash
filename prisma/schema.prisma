@@ -1,0 +1,39 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model Booking {
+  id             String   @id @default(uuid())
+  name           String
+  mobileNumber   String
+  email          String
+  city           String
+  address        String
+  numberOfPanels Int
+  propertyType   String   // e.g. RESIDENTIAL, COMMERCIAL, INDUSTRIAL, HOUSING_SOCIETY
+  serviceType    String   // e.g. ONE_TIME, AMC_MONTHLY, AMC_QUARTERLY
+  preferredDate  DateTime
+  notes          String?
+  status         String   @default("PENDING") // PENDING, APPROVED, IN_PROGRESS, COMPLETED, CANCELLED
+  paymentStatus  String   @default("UNPAID")  // UNPAID, AUTHORIZED, PAID, REFUNDED
+  razorpayOrderId String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model AdminUser {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  name      String
+  password  String   // Hashed password
+  role      String   @default("ADMIN") // SUPERADMIN, ADMIN, OPERATOR
+  createdAt DateTime @default(now())
+}
